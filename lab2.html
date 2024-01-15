@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор паролей</title>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #passwordForm {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            /* Выравниваем текст в форме по левому краю */
+        }
+
+        #passwordForm label {
+            display: inline-block;
+            width: 250px;
+            margin-bottom: 1px;
+        }
+
+        #passwordForm input[type="number"] {
+            width: 50px;
+        }
+
+        #passwordForm input[type="number"],
+        #passwordForm input[type="text"],
+        #passwordForm input[type="checkbox"] {
+            margin-left: 0;
+            margin-top: 4px;
+        }
+
+        #passwordForm button {
+            margin: 10px auto;
+            /* Центрируем кнопку по горизонтали */
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #passwordsContainer {
+            margin-top: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        #enjoyMessage {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Генератор паролей</h1>
+    <form id="passwordForm">
+        <div>
+            <label for="passwordLength">Длина пароля:</label>
+            <input type="number" id="passwordLength" min="5" max="30" required>
+        </div>
+        <div>
+            <label for="numberOfPasswords">Количество паролей:</label>
+            <input type="number" id="numberOfPasswords" min="1" max="30" required>
+        </div>
+        <div>
+            <label for="includeUppercase">Заглавные буквы нужны?</label>
+            <input type="checkbox" id="includeUppercase">
+        </div>
+        <div>
+            <label for="includeLowercase">А строчные?</label>
+            <input type="checkbox" id="includeLowercase" checked>
+        </div>
+        <div>
+            <label for="includeNumbers">Циферки, может быть?</label>
+            <input type="checkbox" id="includeNumbers" checked>
+        </div>
+        <div>
+            <label for="includeSymbols">А может символы?</label>
+            <input type="checkbox" id="includeSymbols">
+        </div>
+        <div>
+            <label for="excludeCharacters">Не включать в пароль:</label>
+            <input type="text" id="excludeCharacters">
+        </div>
+        <button type="submit">Сгенерировать пароли</button>
+    </form>
+
+    <div id="passwordsContainer"></div>
+
+    <script>
+        const passwordForm = document.getElementById('passwordForm');
+        const passwordsContainer = document.getElementById('passwordsContainer');
+
+        passwordForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const passwordLength = document.getElementById('passwordLength').value;
+            const numberOfPasswords = document.getElementById('numberOfPasswords').value;
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+            const excludeCharacters = document.getElementById('excludeCharacters').value;
+
+            let characterSet = '';
+            if (includeUppercase) characterSet += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeLowercase) characterSet += 'abcdefghijklmnopqrstuvwxyz';
+            if (includeNumbers) characterSet += '0123456789';
+            if (includeSymbols) characterSet += '!@#$%^&*()_+';
+
+            excludeCharacters.split(',').forEach(char => {
+                characterSet = characterSet.replace(new RegExp(char, 'g'), '');
+            });
+
+            let generatedPasswords = '';
+            for (let i = 0; i < numberOfPasswords; i++) {
+                let password = '';
+                for (let j = 0; j < passwordLength; j++) {
+                    password += characterSet.charAt(Math.floor(Math.random() * characterSet.length));
+                }
+                generatedPasswords += `${password}\n`;
+            }
+
+            const blob = new Blob([generatedPasswords], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'generated_passwords.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            passwordsContainer.innerHTML = generatedPasswords.replace(/\n/g, '<br>');
+        });
+    </script>
+
+</body>
+
+</html>
